@@ -1,5 +1,5 @@
 '''Data fra studietur vist med matplotlib i tkinter
-Det er ret recommended kun at tage data fra 1 måned ellers overlapper x-aksens lables, og den er labeled som mm/dd'''
+Det er ret recommended kun at tage data fra 1 måned ellers overlapper x-aksens labels, og den er labeled som mm/dd'''
 
 from tkinter import *
 from PIL import ImageTk, Image
