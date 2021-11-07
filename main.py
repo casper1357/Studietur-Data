@@ -46,6 +46,10 @@ def get_data_from_person(filename, startind, endind):
     personfloors = lst_str_to_int(get_values(5, filename))
     return [persondage, personskridt, personduration, personcalories, personfloors]
 
+def draw_persondata(data, names, plot, nr):
+    for i in range(len(names)):
+        plot.draw(data[i][0], data[i][nr], names[i])
+
 studieturdatoer = ["08-30", "08-31", "09-01", "09-02", "09-03"]
 casperfiler = ["casperdaily.csv", "casperhourly.csv"]
 jacobfiler = "jacobdaily.csv"
@@ -54,6 +58,12 @@ casperdaily = get_data_from_person(casperfiler[0], 5, 10)
 casperhourly = get_data_from_person(casperfiler[1], 5, 19)
 jacobdaily = get_data_from_person(jacobfiler, 5, 10)
 gakkidaily = get_data_from_person(gakkifiler, 5, 10)
+dailydata = [casperdaily, jacobdaily, gakkidaily]
+hourlydata = [casperhourly]
+dailynames = ["Casper", "Jacob", "Mathias"]
+hourlynames = ["Casper"]
+
+
 class Window:
     def __init__(self, mainwindow, root, title, geometry, bgcolor, icon=""):
         self.mainwindow = mainwindow
@@ -78,8 +88,9 @@ class Window:
         b = Button(self.window, text=text, command=command)
         b.pack()
 
-    def exit_window(self):
+    def exit(self):
         self.window.destroy()
+        self.window.update()
 
     def create_background(self, filename):
         C = Canvas(self.window, bg="blue", height=0, width=0)
@@ -91,6 +102,7 @@ class Window:
 
 class Plot:
     def __init__(self, window, subplot, figsizex, figsizey, dpi):
+        self.dontDraw = False
         self.plt = plt
         self.window = window
         # Figure with size and dpi (pixels) Example: 6.4 figsize and 100 dpi is 6.4 * 100 = 640 pixels
@@ -106,7 +118,9 @@ class Plot:
         self.a1.set_ylabel('y')
         self.a1.title.set_text("Plot x")
 
-    def config(self, xlabel="", ylabel="", title="", gridcolor=""):
+    def config(self, xlabel="", ylabel="", title="", gridcolor="", rotation=0):
+        #Hvis du bruger rotation er der ikke længere mulighed for at bruge toolbaren
+        self.a1.tick_params(axis='x', labelrotation=rotation)
         self.a1.set_xlabel(xlabel)
         self.a1.set_ylabel(ylabel)
         self.a1.title.set_text(title)
@@ -115,65 +129,79 @@ class Plot:
     def draw(self, xvalues, yvalues, label=""):
         self.a1.plot(xvalues, yvalues, label=label)
         self.toolbar.update()
-        self.canvas.get_tk_widget().pack(fill=X)
+        if not self.dontDraw:
+            self.canvas.get_tk_widget().pack()
         self.a1.legend()
         self.canvas.draw()
 
-#Laver mit vindue og plotter data fra de forskellige personer på studieturen
-def dailyWindow():
-    names = ["Casper", "Jacob", "Gakki"]
-
-    data = [casperdaily, jacobdaily, gakkidaily]
-    dailywindow = Window(False, root, "Studietur daily", "1920x1080", "white")
-    p1 = Plot(dailywindow.window, 111, 10, 4, 50)
-    p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey")
-    draw_persondata(data, names, p1, 1)
-
-    p2 = Plot(dailywindow.window, 111, 10, 4, 50)
-    p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey")
-    draw_persondata(data, names, p2, 2)
-
-    p3 = Plot(dailywindow.window, 111, 10, 4, 50)
-    p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey")
-    draw_persondata(data, names, p3, 3)
-
-    p4 = Plot(dailywindow.window, 111, 10, 4, 50)
-    p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey")
-    draw_persondata(data, names, p4, 4)
-    dailywindow.loop()
-
-def hourlyWindow():
-    names = ["Casper"]
-    data = [casperhourly]
-
-    hourlywindow = Window(False, root, "Studietur hourly", "1920x1080", "white")
-    p1 = Plot(hourlywindow.window, 111, 10, 4, 50)
-    p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey")
-    draw_persondata(data, names, p1, 1)
-
-    p2 = Plot(hourlywindow.window, 111, 10, 4, 50)
-    p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey")
-    draw_persondata(data, names, p2, 2)
-
-    p3 = Plot(hourlywindow.window, 111, 10, 4, 50)
-    p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey")
-    draw_persondata(data, names, p3, 3)
-
-    p4 = Plot(hourlywindow.window, 111, 10, 4, 50)
-    p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey")
-    draw_persondata(data, names, p4, 4)
-
-    hourlywindow.loop()
-
 def menu():
     menuwindow = Window(True, root, "Menu", "1920x1080", "white")
-    menuwindow.button("DailySteps", command=dailyWindow)
-    menuwindow.button("Hourly", command=hourlyWindow)
+    menuwindow.button("DailySteps", command=dailystepswin)
+    menuwindow.button("Hourly", command=hourlystepswin)
     menuwindow.loop()
 
-def draw_persondata(data, names, plot, nr):
-    for i in range(len(names)):
-        print(data[i])
-        plot.draw(data[i][0], data[i][nr], names[i])
+def dailystepswin():
+    dailysteps = Window(False, root, "Daily steps", "1920x1080", "white")
+    p1 = Plot(dailysteps.window, 111, 45, 15, 50)
+    p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey")
+    draw_persondata(dailydata, dailynames, p1, 1)
+    dailysteps.button(text="Next", command=lambda: [f() for f in [dailysteps.exit, dailydurwin]])
+    dailysteps.loop()
+
+def dailydurwin():
+    dailyduration = Window(False, root, "Daily duration", "1920x1080", "white")
+    p2 = Plot(dailyduration.window, 111, 45, 15, 50)
+    p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey")
+    draw_persondata(dailydata, dailynames, p2, 2)
+    dailyduration.button(text="Next", command=lambda: [f() for f in [dailyduration.exit, dailycalwin]])
+    dailyduration.loop()
+
+def dailycalwin():
+    dailycalories = Window(False, root, "Daily calories", "1920x1080", "white")
+    p3 = Plot(dailycalories.window, 111, 45, 15, 50)
+    p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey")
+    draw_persondata(dailydata, dailynames, p3, 3)
+    dailycalories.button(text="Next", command=lambda: [f() for f in [dailycalories.exit, dailyfloorswin]])
+    dailycalories.loop()
+
+def dailyfloorswin():
+    dailyfloors = Window(False, root, "Daily floors", "1920x1080", "white")
+    p4 = Plot(dailyfloors.window, 111, 45, 15, 50)
+    p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey")
+    draw_persondata(dailydata, dailynames, p4, 4)
+    dailyfloors.button(text="Next", command=lambda: [f() for f in [dailyfloors.exit, dailystepswin]])
+    dailyfloors.loop()
+
+def hourlystepswin():
+    hourlystepswindow = Window(False, root, "Hourly steps", "1920x1080", "white")
+    p1 = Plot(hourlystepswindow.window, 111, 45, 15, 50)
+    p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey", rotation=90)
+    draw_persondata(hourlydata, hourlynames, p1, 1)
+    hourlystepswindow.button(text="Next", command=lambda:[f() for f in [hourlystepswindow.exit, hourlydurwin]])
+    hourlystepswindow.loop()
+
+def hourlydurwin():
+    hourlydurationwindow = Window(False, root, "Hourly duration", "1920x1080", "white")
+    p2 = Plot(hourlydurationwindow.window, 111, 45, 15, 50)
+    p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey", rotation=90)
+    draw_persondata(hourlydata, hourlynames, p2, 2)
+    hourlydurationwindow.button(text="Next", command=lambda: [f() for f in [hourlydurationwindow.exit, hourlycalwin]])
+    hourlydurationwindow.loop()
+
+def hourlycalwin():
+    hourlycalorieswindow = Window(False, root, "Hourly calories", "1920x1080", "white")
+    p3 = Plot(hourlycalorieswindow.window, 111, 45, 15, 50)
+    p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey", rotation=90)
+    draw_persondata(hourlydata, hourlynames, p3, 3)
+    hourlycalorieswindow.button(text="Next", command=lambda: [f() for f in [hourlycalorieswindow.exit, hourlyfloorswin]])
+    hourlycalorieswindow.loop()
+
+def hourlyfloorswin():
+    hourlyfloorswindow = Window(False, root, "Hourly floors", "1920x1080", "white")
+    p4 = Plot(hourlyfloorswindow.window, 111, 45, 15, 50)
+    p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey", rotation=90)
+    draw_persondata(hourlydata, hourlynames, p4, 4)
+    hourlyfloorswindow.button(text="Next", command=lambda: [f() for f in [hourlyfloorswindow.exit, hourlystepswin]])
+    hourlyfloorswindow.loop()
 
 menu()
