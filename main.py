@@ -65,7 +65,7 @@ hourlynames = ["Casper"]
 
 
 class Window:
-    def __init__(self, mainwindow, root, title, geometry, bgcolor, icon=""):
+    def __init__(self, title, geometry, bgcolor, icon="", mainwindow=False):
         self.mainwindow = mainwindow
         if self.mainwindow == False:
             self.window = Toplevel(root)
@@ -138,13 +138,13 @@ class Plot:
         self.canvas.draw()
 
 def menu():
-    menuwindow = Window(True, root, "Menu", "1920x1080", "white")
+    menuwindow = Window("Menu", "1920x1080", "white", mainwindow=True)
     menuwindow.button("DailySteps", command=dailystepswin)
     menuwindow.button("Hourly", command=hourlystepswin)
     menuwindow.loop()
 
 def dailystepswin():
-    dailysteps = Window(False, root, "Daily steps", "1920x1080", "white")
+    dailysteps = Window("Daily steps", "1920x1080", "white")
     dailysteps.button(text="Next", command=lambda: [f() for f in [dailysteps.exit, dailydurwin]])
     p1 = Plot(dailysteps.window, 111, 45, 15, 50)
     p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey", labelsize=30)
@@ -152,7 +152,7 @@ def dailystepswin():
     dailysteps.loop()
 
 def dailydurwin():
-    dailyduration = Window(False, root, "Daily duration", "1920x1080", "white")
+    dailyduration = Window("Daily duration", "1920x1080", "white")
     dailyduration.button(text="Next", command=lambda: [f() for f in [dailyduration.exit, dailycalwin]])
     p2 = Plot(dailyduration.window, 111, 45, 15, 50)
     p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey", labelsize=30)
@@ -160,7 +160,7 @@ def dailydurwin():
     dailyduration.loop()
 
 def dailycalwin():
-    dailycalories = Window(False, root, "Daily calories", "1920x1080", "white")
+    dailycalories = Window("Daily calories", "1920x1080", "white")
     dailycalories.button(text="Next", command=lambda: [f() for f in [dailycalories.exit, dailyfloorswin]])
     p3 = Plot(dailycalories.window, 111, 45, 15, 50)
     p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey", labelsize=30)
@@ -168,7 +168,7 @@ def dailycalwin():
     dailycalories.loop()
 
 def dailyfloorswin():
-    dailyfloors = Window(False, root, "Daily floors", "1920x1080", "white")
+    dailyfloors = Window("Daily floors", "1920x1080", "white")
     dailyfloors.button(text="Next", command=lambda: [f() for f in [dailyfloors.exit, dailystepswin]])
     p4 = Plot(dailyfloors.window, 111, 45, 15, 50)
     p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey", labelsize=30)
@@ -176,7 +176,7 @@ def dailyfloorswin():
     dailyfloors.loop()
 
 def hourlystepswin():
-    hourlystepswindow = Window(False, root, "Hourly steps", "1920x1080", "white")
+    hourlystepswindow = Window("Hourly steps", "1920x1080", "white")
     hourlystepswindow.button(text="Next", command=lambda: [f() for f in [hourlystepswindow.exit, hourlydurwin]])
     p1 = Plot(hourlystepswindow.window, 111, 45, 20, 50)
     p1.config(xlabel="Dato", ylabel="Skridt", gridcolor="grey", rotation=90, labelsize=15)
@@ -184,7 +184,7 @@ def hourlystepswin():
     hourlystepswindow.loop()
 
 def hourlydurwin():
-    hourlydurationwindow = Window(False, root, "Hourly duration", "1920x1080", "white")
+    hourlydurationwindow = Window("Hourly duration", "1920x1080", "white")
     hourlydurationwindow.button(text="Next", command=lambda: [f() for f in [hourlydurationwindow.exit, hourlycalwin]])
     p2 = Plot(hourlydurationwindow.window, 111, 45, 20, 50)
     p2.config(xlabel="Dato", ylabel="Duration", gridcolor="grey", rotation=90, labelsize=15)
@@ -192,7 +192,7 @@ def hourlydurwin():
     hourlydurationwindow.loop()
 
 def hourlycalwin():
-    hourlycalorieswindow = Window(False, root, "Hourly calories", "1920x1080", "white")
+    hourlycalorieswindow = Window("Hourly calories", "1920x1080", "white")
     hourlycalorieswindow.button(text="Next", command=lambda: [f() for f in [hourlycalorieswindow.exit, hourlyfloorswin]])
     p3 = Plot(hourlycalorieswindow.window, 111, 45, 20, 50)
     p3.config(xlabel="Dato", ylabel="Kalorier", gridcolor="grey", rotation=90, labelsize=15)
@@ -200,7 +200,7 @@ def hourlycalwin():
     hourlycalorieswindow.loop()
 
 def hourlyfloorswin():
-    hourlyfloorswindow = Window(False, root, "Hourly floors", "1920x1080", "white")
+    hourlyfloorswindow = Window("Hourly floors", "1920x1080", "white")
     hourlyfloorswindow.button(text="Next", command=lambda: [f() for f in [hourlyfloorswindow.exit, hourlystepswin]])
     p4 = Plot(hourlyfloorswindow.window, 111, 45, 20, 50)
     p4.config(xlabel="Dato", ylabel="Etager", gridcolor="grey", rotation=90, labelsize=15)
